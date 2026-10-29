@@ -1,0 +1,61 @@
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Keskkonnamuutujad ja saladused
+.env
+.env.*
+!.env.example
+
+# Isiklikud APAP/CPAP andmed
+/data/
+
+# Kohalikud andmebaasid
+*.duckdb
+*.duckdb.wal
+
+# Sünteetilised demoandmed
+# Vaikimisi välistame kogu demo/data sisu
+/demo/data/*
+
+# Lubame ainult kontrollitud näidisfailid
+!/demo/data/apap_demo.duckdb
+!/demo/data/brp/
+!/demo/data/brp/demo_01_BRP.edf
+!/demo/data/brp/demo_02_BRP.edf
+!/demo/data/brp/demo_03_BRP.edf
+!/demo/data/brp/demo_04_BRP.edf
+!/demo/data/pld/
+!/demo/data/pld/synthetic_pld.parquet
+
+# Varukoopiad
+backup/
+backups/
+*_backup.py
+*.bak
+
+# Kohalikud aruanded ja ekspordid
+reports/
+outputs/
+
+# Ajutised failid
+*.tmp
+*.log
+~$*
+
+# Arenduskeskkond
+.vscode/
+.idea/
+
+# Kohalik projekti faililoend
+project_structure.txt
+
+# Operatsioonisüsteemi failid
+.DS_Store
+Thumbs.db
+
+
