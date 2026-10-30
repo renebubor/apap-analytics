@@ -6,9 +6,9 @@
 
 > **Status:** Local data-processing pipeline, bilingual four-tab dashboard, synthetic demo dataset, and demo/personal data-mode selection are implemented and tested locally. A publicly hosted web demo and installation testing on a clean machine are still planned.
 >
-> **Privacy:** This repository includes source code and **synthetic demo data only**. Real therapy recordings, personal databases, SD-card archives, and exports must never be committed.
+> **Data:** The included demo dataset is synthetic. The screenshots illustrate the application using real local measurements; personal therapy recordings and analysis databases are stored and processed locally.
 >
-> **Medical disclaimer:** This is an exploratory analytics project, not a medical device. It does not provide diagnosis or treatment recommendations.
+> **Medical disclaimer:** This is an exploratory analytics project. It does not provide diagnosis or treatment recommendations.
 
 ---
 
@@ -20,6 +20,42 @@
 APAP Analytics is a Python project for processing and exploring therapy data recorded by a ResMed APAP device. It imports locally available device files, validates and transforms the data, stores analytical results in DuckDB, and displays them in an interactive Streamlit dashboard.
 
 The project serves two purposes: a local tool for analyzing one's own authorized therapy records, and a GitHub portfolio project demonstrating data ingestion, transformation, data-quality controls, analytical modeling, and visualization.
+
+### Application preview
+
+The following screenshots show the **actual Windows application and Streamlit interface**. The analytics screenshots were captured from a **local dataset of real APAP measurements**, not the included synthetic dataset. They illustrate the capabilities of the application; **the included demo mode uses synthetic data only**.
+
+#### Windows launcher
+
+The desktop launcher provides access to SD-card import, the analytics dashboard, data-mode selection, and an overview of the locally available data.
+
+![Sleep & PAP Analytics — Windows launcher](docs/images/en/launcher-home.png)
+
+#### 1. Therapy nights overview
+
+An overview of therapy usage and key indicators, including AHI, pressure P95, and leak P95, with nightly trends and selectable dates.
+
+![Therapy nights overview](docs/images/en/therapy-overview.png)
+
+#### 2. Session details
+
+A session-level timeline combining therapy pressure, mask leak, respiratory rate, and respiratory events. This enables drill-down from nightly metrics to individual sessions.
+
+![Session details and timeline](docs/images/en/session-details.png)
+
+#### 3. Breathing details
+
+Detailed airflow surrounding a selected respiratory event, when a corresponding BRP recording exists. The highlighted interval identifies the detected event.
+
+![Breathing details — respiratory-event airflow](docs/images/en/breathing-details.png)
+
+#### 4. Data quality
+
+Completeness checks across daily summaries, detailed PLD measurements, and BRP files. Missing measurements and file-reading errors are surfaced explicitly instead of being silently ignored.
+
+![Data completeness and file checks](docs/images/en/data-quality.png)
+
+*The screenshots use real local measurements; the runnable demo uses synthetic data. No personal recordings or databases are included in the repository.*
 
 ### Current features
 
@@ -41,10 +77,10 @@ The project serves two purposes: a local tool for analyzing one's own authorized
 ResMed SD card / local archive          Included synthetic demo data
                |                                     |
                v                                     |
-     Python import and processing                     |
+     Python import and processing                    |
                |                                     |
                v                                     |
-     Validation and derived metrics                   |
+     Validation and derived metrics                  |
                |                                     |
                v                                     v
         Local DuckDB                         Demo DuckDB + EDF files
@@ -92,17 +128,19 @@ demo/
 ```text
 src/                  Data import, transformation, validation, and pipeline
 dashboard/            Streamlit application
- demo/                 Synthetic-data generator and included demo dataset
- tests/                Test fixtures and supporting files
- app_launcher.py       Windows graphical launcher
- APAP Analytics.vbs    Windows launcher helper
- update_apap.bat       SD-card update helper (Windows)
- requirements.txt      Python dependencies
- requirements-lock.txt Dependency lock/reference file
- README.md             Project documentation
+docs/images/en/       English application screenshots
+docs/images/et/       Estonian application screenshots
+demo/                 Synthetic-data generator and included demo dataset
+tests/                Test fixtures and supporting files
+app_launcher.py       Windows graphical launcher
+APAP Analytics.vbs    Windows launcher helper
+update_apap.bat       SD-card update helper (Windows)
+requirements.txt      Python dependencies
+requirements-lock.txt Dependency lock/reference file
+README.md             Project documentation
 ```
 
-The local `data/` directory is excluded from version control. Only explicitly allowed synthetic files under `demo/data/` are included.
+The included demo files are located in `demo/data/`, while application screenshots are in `docs/images/`. Personal therapy data is processed and stored locally.
 
 ### Local setup (Windows)
 
@@ -144,15 +182,9 @@ On Windows, run `update_apap.bat` and enter the SD card drive letter when prompt
 
 Do not run the import while the dashboard has the database open. The personal import workflow depends on the device's file structure and has not yet been validated on other users' devices.
 
-### Privacy and data policy
+### Data privacy
 
-Actual therapy recordings are sensitive personal health information. Never publish:
-
-- Original SD-card contents, including actual EDF and associated files.
-- DuckDB databases or CSV/Parquet exports containing real measurements.
-- Local reports, backups, logs, credentials, or identifying device metadata.
-
-The `.gitignore` excludes local `data/`, databases, and common temporary files, with narrow exceptions for the included synthetic demo dataset. **A `.gitignore` is not a security guarantee.** Review staged files and repository history before publishing. Do not generate a public sample by anonymizing or copying personal recordings; use independently synthetic data.
+The included demo uses independently generated synthetic data. Personal therapy recordings and analysis databases are stored and processed locally. The screenshots above illustrate real local measurements but are not part of the runnable demo dataset.
 
 ### Roadmap
 
@@ -165,7 +197,7 @@ The `.gitignore` excludes local `data/`, databases, and common temporary files, 
 - [x] Windows launcher with explicit data-mode selection
 - [ ] Clean-environment installation and end-to-end test
 - [ ] Publicly hosted Streamlit web demo
-- [ ] Representative screenshots using synthetic data only
+- [x] Bilingual application screenshots (real local measurements; no raw recordings shared)
 - [ ] Possible future exploration: Samsung Health integration and an AI analysis assistant
 
 ---
@@ -179,9 +211,45 @@ The `.gitignore` excludes local `data/`, databases, and common temporary files, 
 
 APAP Analytics on Pythonis loodud projekt ResMedi APAP-seadme salvestatud raviandmete töötlemiseks ja analüüsimiseks. Rakendus impordib lokaalselt kättesaadavaid seadmefaile, kontrollib ja teisendab andmeid, salvestab analüütilised tulemused DuckDB andmebaasi ning kuvab need interaktiivsel Streamliti juhtpaneelil.
 
-Projektil on kaks eesmärki: isiklik analüüsivahend enda seadme andmete uurimiseks ning GitHubi portfooliotöö, mis näitab andmete laadimise, teisendamise, kvaliteedikontrolli, analüütilise modelleerimise ja visualiseerimise oskusi.
+Projektil on kaks eesmärki: analüüsivahend seadme andmete uurimiseks ning GitHubi portfooliotöö, mis näitab andmete laadimise, teisendamise, kvaliteedikontrolli, analüütilise modelleerimise ja visualiseerimise poolt.
 
-Rakendus **ei ole meditsiiniseade** ega anna diagnoose või ravisoovitusi. Tulemuste tõlgendamisel tuleb arvestada meditsiinilise kontekstiga.
+Rakendus ei anna diagnoose või ravisoovitusi. Tulemuste tõlgendamisel tuleb arvestada meditsiinilise kontekstiga.
+
+### Rakenduse visuaalne tutvustus
+
+Järgmised ekraanipildid näitavad **tegelikku Windowsi rakendust ja Streamliti juhtpaneeli**. Analüüsivaadete pildid on tehtud **tegelikel APAP-mõõtmistel põhinevast lokaalsest andmestikust**, mitte kaasasolevatest sünteetilistest näidisandmetest. Need tutvustavad rakenduse võimalusi; **projektiga kaasas olev demorežiim kasutab ainult sünteetilist andmestikku**.
+
+#### Windowsi käivitusrakendus
+
+Graafiline käivitusrakendus võimaldab importida SD-kaardi andmeid, avada analüüsi, valida andmerežiimi ja vaadata kohaliku andmestiku lühikokkuvõtet.
+
+![Sleep & PAP Analytics — Windowsi käivitusrakendus](docs/images/et/launcher-home.png)
+
+#### 1. Raviööde ülevaade
+
+Raviperioodi kasutusaja ning peamiste näitajate (AHI, rõhk P95 ja leke P95) ülevaade koos öiste trendide ja kuupäevavalikuga.
+
+![Raviööde ülevaade](docs/images/et/ravioode-ulevaade.png)
+
+#### 2. Sessiooni detailanalüüs
+
+Sessiooni ajajoonel on kõrvuti rõhk, maskileke, hingamissagedus ja hingamissündmused. See võimaldab liikuda öiste koondnäitajate juurest üksiku sessiooni detailidesse.
+
+![Sessiooni detailanalüüs](docs/images/et/sessiooni-detailanaluus.png)
+
+#### 3. Hingamise detailanalüüs
+
+Valitud hingamissündmuse ümbruse õhuvoolusignaal, kui vastav BRP-salvestis on olemas. Esiletõstetud lõik näitab tuvastatud sündmuse kestust.
+
+![Hingamise detailanalüüs — õhuvool sündmuse ajal](docs/images/et/hingamise-detailanaluus.png)
+
+#### 4. Andmekvaliteet
+
+Päevakokkuvõtete, PLD-detailmõõtmiste ja BRP-failide täielikkuse kontroll. Puuduvad mõõtmised ning failide lugemise vead tuuakse eraldi esile.
+
+![Andmekvaliteedi ja failide kontroll](docs/images/et/andmekvaliteet.png)
+
+*Ekraanipildid põhinevad tegelikel lokaalsetel mõõtmistel; käivitatav demo kasutab sünteetilisi andmeid. Isiklikke salvestisi ja andmebaase repositoorium ei sisalda.*
 
 ### Praegune funktsionaalsus
 
@@ -254,6 +322,8 @@ demo/
 ```text
 src/                  Andmete import, teisendamine, kontrollid ja pipeline
 dashboard/            Streamliti rakendus
+docs/images/en/       Ingliskeelsed ekraanipildid
+docs/images/et/       Eestikeelsed ekraanipildid
 demo/                 Sünteetiliste andmete generaator ja näidisandmestik
 tests/                Testfailid ja abimaterjalid
 app_launcher.py       Windowsi graafiline käivitusrakendus
@@ -264,7 +334,7 @@ requirements-lock.txt Sõltuvuste lukustus-/viitefail
 README.md             Projekti dokumentatsioon
 ```
 
-Lokaalne `data/` kaust on versioonihaldusest välistatud. GitHubi lisatakse ainult konkreetselt lubatud sünteetilised failid kaustast `demo/data/`.
+Kaasasolevad demoandmed asuvad kaustas `demo/data/` ning rakenduse ekraanipildid kaustas `docs/images/`. Isiklikke raviandmeid töödeldakse ja säilitatakse lokaalselt.
 
 ### Paigaldamine (Windows)
 
@@ -306,15 +376,9 @@ Windowsis käivita `update_apap.bat` ja sisesta küsimise peale SD-kaardi kettat
 
 Ära käivita importi ajal, mil dashboard hoiab andmebaasi avatuna. Isiklike andmete import sõltub seadme failistruktuurist ning seda ei ole veel teiste kasutajate seadmetega kontrollitud.
 
-### Andmekaitse
+### Andmete privaatsus
 
-Tegelikud APAP-raviandmed on tundlikud isiklikud terviseandmed. Avalikku repositooriumi ei tohi lisada:
-
-- SD-kaardi originaalsisu, sealhulgas tegelikud EDF- ja seotud failid.
-- Tegelikke mõõtmisi sisaldavaid DuckDB-andmebaase või CSV/Parquet-väljundeid.
-- Lokaalseid aruandeid, varukoopiaid, logisid, paroole või seadet tuvastada võimaldavaid metaandmeid.
-
-`.gitignore` välistab lokaalse `data/` kausta, andmebaasid ja tavapärased ajutised failid, kuid lubab erandina konkreetsed sünteetilised näidisfailid. **`.gitignore` ei ole turvagarantii.** Enne avaldamist tuleb kontrollida Giti lisatud faile ja versiooniajalugu. Avalikku näidisandmestikku ei tohi koostada isiklike raviandmete kopeerimise või anonüümimise teel; kasutada tuleb sõltumatult genereeritud sünteetilisi andmeid.
+Kaasasolev demo kasutab sõltumatult genereeritud sünteetilisi andmeid. Isiklikke raviandmeid ja analüüsiandmebaase säilitatakse ning töödeldakse lokaalselt. Ülal olevad ekraanipildid illustreerivad tegelikke kohalikke mõõtmisi, kuid ei kuulu käivitatava demo andmestikku.
 
 ### Edasine arendusplaan
 
@@ -327,5 +391,5 @@ Tegelikud APAP-raviandmed on tundlikud isiklikud terviseandmed. Avalikku reposit
 - [x] Windowsi käivitusrakendus selge andmerežiimi valikuga
 - [ ] Paigaldamise ja kogu töövoo test puhtas keskkonnas
 - [ ] Avalik Streamliti veebidemo
-- [ ] Näidispildid ainult sünteetiliste andmetega
+- [x] Kakskeelsed rakenduse ekraanipildid (tegelikud lokaalsed mõõtmised; toorsalvestisi ei jagata)
 - [ ] Võimalikud tulevased täiendused: Samsung Healthi andmed ja AI-analüüsiagent
