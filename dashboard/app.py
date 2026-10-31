@@ -45,40 +45,44 @@ st.set_page_config(
     layout="wide",
 )
 
-# Presentation-only styling. No therapy calculations or source data are changed.
+# Presentation-only styling. No source data, filters or calculation rules change.
 st.markdown(
     """
     <style>
-    .block-container {padding-top: 1.25rem; padding-bottom: 2rem;}
+    .block-container {padding-top: .55rem; padding-bottom: 2rem;}
     .apap-hero {
-        position: relative; overflow: hidden; isolation: isolate;
-        padding: 1.25rem 1.5rem; border-radius: 14px 14px 0 0;
-        background: linear-gradient(112deg, #ffffff 0%, #f5faff 47%, #d2e8ff 79%, #90c5f9 100%);
-        border: 1px solid #d7e6f5;
-        min-height: 130px;
+        position: relative; isolation: isolate; overflow: hidden;
+        min-height: 132px; padding: 20px 22px;
+        background: linear-gradient(100deg,#fff 0%,#fff 41%,#eff7ff 60%,#9bcafa 100%);
+        border: 1px solid #e3ecf7; border-radius: 8px 8px 0 0;
     }
-    .apap-hero::before {
-        content: ""; position: absolute; z-index: -1;
-        width: 60%; height: 160px; right: -4%; bottom: -95px;
-        border-radius: 50%; border: 2px solid rgba(255,255,255,.75);
-        box-shadow: 0 -24px 0 8px rgba(255,255,255,.12);
-        transform: rotate(-8deg);
+    .apap-hero h1 {
+        position: relative; z-index: 1; margin: 0 0 9px; padding: 0;
+        color: #0c1c42; font-size: 2rem; font-weight: 750; line-height: 1.15;
     }
-    .apap-hero h1 {margin: 0 0 .3rem; font-size: 2rem; line-height: 1.2; color: #0b1e43;}
-    .apap-hero p {margin: 0; color: #536e91;}
-    .apap-hero .apap-moon {position: absolute; right: 5%; top: 12px; font-size: 3rem; opacity: .48;}
-    div[data-testid="stMetric"] {
-        min-width: 0; min-height: 105px; padding: 13px 16px;
-        border: 1px solid #dfe9f4; border-radius: 11px;
-        background: linear-gradient(150deg, #ffffff, #f7fbff);
+    .apap-hero p {position: relative; z-index: 1; color: #5b7194; margin: 0;}
+    .apap-art {position: absolute; width: 57%; height: 100%; right: 0; top: 0; pointer-events: none;}
+    .apap-kpi {
+        min-width: 0; height: 105px; position: relative;
+        border: 1px solid #dce7f5; border-radius: 9px;
+        background: linear-gradient(145deg,#fff 0%,#f7faff 100%);
+        padding: 15px 15px 10px;
     }
-    div[data-testid="stMetricLabel"] {color: #465c7b;}
-    div[data-testid="stMetricValue"] {color: #0b1e43;}
-    div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {color: #1479cf;}
-    @media (max-width: 750px) {
-        .apap-hero {padding: 1rem; min-height: 110px;}
-        .apap-hero h1 {font-size: 1.45rem;}
-        .apap-hero .apap-moon {font-size: 2rem;}
+    .apap-kpi-label {color: #4a5c7b; padding-right: 40px; font-size: .92rem; line-height: 1.25;}
+    .apap-kpi-value {margin-top: 8px; font-size: 1.6rem; line-height: 1.18; font-weight: 700; color:#101d42; white-space: nowrap;}
+    .apap-kpi-icon {position: absolute; right: 12px; top: 11px; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;}
+    .apap-kpi-icon svg {width: 23px; height: 23px; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; fill:none;}
+    .apap-kpi-icon.blue {background:#e3f1ff;color:#1380dc;}
+    .apap-kpi-icon.red {background:#ffe9ea;color:#ed515c;}
+    .apap-kpi-icon.green {background:#dff7e9;color:#159b64;}
+    div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {color:#ed515c; border-bottom-color:#ed515c;}
+    div[data-testid="stDateInput"] {max-width:100%;}
+    div[data-testid="stPlotlyChart"] {background:#fff;}
+    @media (max-width: 800px) {
+       .apap-hero {min-height:110px;padding:15px;}
+       .apap-hero h1 {font-size:1.45rem;}
+       .apap-art {opacity:.55;width:50%;}
+       .apap-kpi-value {font-size:1.25rem;}
     }
     </style>
     """,
@@ -229,7 +233,8 @@ def change_language():
     st.query_params["lang"] = language
 
 
-language_col, _ = st.columns([1, 8])
+# Keep the actual language control interactive and aligned at upper right.
+_, language_col = st.columns([8, 1.15])
 with language_col:
     st.segmented_control(
         "Language / Keel",
@@ -239,15 +244,30 @@ with language_col:
         on_change=change_language,
     )
 
-# Escape translated strings before inserting them into the HTML header.
 from html import escape
 
+# Inline vector illustration scales with the real dashboard width.
+HERO_ART = """
+<svg class="apap-art" viewBox="0 0 660 160" preserveAspectRatio="xMidYMid slice"
+     xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path d="M0 154 Q150 145 260 78 T660 110 V160 H0Z" fill="#bddfff" opacity=".58"/>
+  <path d="M0 154 Q170 126 300 114 T660 118" fill="none" stroke="white" stroke-width="2" opacity=".9"/>
+  <path d="M0 160 Q170 137 310 130 T660 142" fill="none" stroke="white" stroke-width="1.5" opacity=".75"/>
+  <path d="M462 23a26 26 0 1 0 28 40 29 29 0 0 1-28-40z" fill="white" opacity=".93"/>
+  <g fill="none" stroke="white" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M525 72 V124 M525 112 H622 V124 M535 95 H602 Q620 95 620 112"/>
+  </g>
+  <circle cx="548" cy="88" r="11" fill="white"/>
+  <g fill="white" font-family="Arial, sans-serif" font-weight="bold" text-anchor="middle">
+    <text x="584" y="69" font-size="22">z</text><text x="609" y="44" font-size="29">z</text><text x="633" y="17" font-size="35">z</text>
+  </g>
+</svg>
+"""
 st.markdown(
     '<div class="apap-hero">'
     f'<h1>{escape(t("CPAP ravi analüüs"))}</h1>'
     f'<p>{escape(t("ResMed AirSense 10 – raviandmete ülevaade"))}</p>'
-    '<span class="apap-moon" aria-hidden="true">☾</span>'
-    '</div>',
+    + HERO_ART + '</div>',
     unsafe_allow_html=True,
 )
 
@@ -501,34 +521,32 @@ with tab_overview:
 
             st.subheader(t("Põhinäitajad"))
 
-            c1, c2, c3, c4 = st.columns(4, gap="small")
+            def kpi_card(label, value, color, svg_body):
+                return (
+                    '<div class="apap-kpi">'
+                    f'<div class="apap-kpi-label">{escape(str(label))}</div>'
+                    f'<div class="apap-kpi-value">{escape(str(value))}</div>'
+                    f'<div class="apap-kpi-icon {color}">'
+                    '<svg viewBox="0 0 24 24" stroke="currentColor">'
+                    f'{svg_body}</svg></div></div>'
+                )
 
-            c1.metric(
-                t("Keskmine kasutusaeg"),
-                format_minutes(average_minutes),
-            )
-
-            c2.metric(
-                t("Kogu perioodi AHI"),
-                format_number(overall_ahi),
-            )
-
-            c3.metric(
-                t("Keskmine rõhk P95"),
-                format_number(
-                    filtered["pressure_p95"].mean(),
-                    unit="cmH₂O",
-                ),
-            )
-
-            c4.metric(
-                t("Keskmine leke P95"),
-                format_number(
-                    filtered["leak_p95_l_min"].mean(),
-                    decimals=1,
-                    unit="L/min",
-                ),
-            )
+            icons = [
+                '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 3"/>',
+                '<path d="M2 12h5l3-7 4 14 3-7h5"/>',
+                '<path d="M3 17a9 9 0 1 1 18 0"/><path d="M12 17l5-7"/>',
+                '<path d="M2 8h12q5 0 5-3 0-3-3-3"/><path d="M2 13h17q4 0 4 3t-4 3"/><path d="M2 18h9"/>'
+            ]
+            metrics = [
+                (t("Keskmine kasutusaeg"), format_minutes(average_minutes), "blue", icons[0]),
+                (t("Kogu perioodi AHI"), format_number(overall_ahi), "red", icons[1]),
+                (t("Keskmine rõhk P95"), format_number(filtered["pressure_p95"].mean(), unit="cmH₂O"), "blue", icons[2]),
+                (t("Keskmine leke P95"), format_number(filtered["leak_p95_l_min"].mean(), decimals=1, unit="L/min"), "green", icons[3]),
+            ]
+            cols = st.columns(4, gap="small")
+            for col, (label, value, color, icon) in zip(cols, metrics):
+                with col:
+                    st.markdown(kpi_card(label, value, color, icon), unsafe_allow_html=True)
 
             st.caption(
                 t("Rõhu ja lekke P95 näitajad on raviööde P95 väärtuste "
