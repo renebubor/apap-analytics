@@ -233,8 +233,9 @@ def change_language():
     st.query_params["lang"] = language
 
 
-# Keep the actual language control interactive and aligned at upper right.
-_, language_col = st.columns([8, 1.15])
+# Keep the language selector above the header, at the upper left.
+# It remains a native Streamlit widget with the existing language callback.
+language_col, _ = st.columns([1.25, 8])
 with language_col:
     st.segmented_control(
         "Language / Keel",
