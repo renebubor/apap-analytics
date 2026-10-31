@@ -638,12 +638,14 @@ with tab_session:
         "session_id"
     ].tolist()
 
-    selected_session = st.selectbox(
-        t("Vali sessioon"),
-        options=session_ids,
-        index=len(session_ids) - 1,
-        key="selected_session",
-    )
+    session_picker_col, _ = st.columns([2, 3])
+    with session_picker_col:
+        selected_session = st.selectbox(
+            t("Vali sessioon"),
+            options=session_ids,
+            index=len(session_ids) - 1,
+            key="selected_session",
+        )
 
     selected = session_summary[
         session_summary["session_id"]
@@ -654,38 +656,31 @@ with tab_session:
     # Sessiooni KPI-d
     # -----------------------------------------------------
 
-    c1, c2, c3, c4 = st.columns(4)
-
-    c1.metric(
-        t("Kestus"),
-        format_minutes(
-            selected["duration_minutes"]
-        ),
-    )
-
-    c2.metric(
-        "AHI",
-        format_number(
-            selected["calculated_ahi"]
-        ),
-    )
-
-    c3.metric(
-        t("Keskmine rõhk"),
-        format_number(
-            selected["avg_pressure"],
-            unit="cmH₂O",
-        ),
-    )
-
-    c4.metric(
-        t("Leke P95"),
-        format_number(
-            selected["leak_p95"],
-            decimals=1,
-            unit="L/min",
-        ),
-    )
+    # Reuse the overview card design without changing any KPI calculations.
+    session_icons = [
+        '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 3"/>',
+        '<path d="M2 12h5l3-7 4 14 3-7h5"/>',
+        '<path d="M3 17a9 9 0 1 1 18 0"/><path d="M12 17l5-7"/>',
+        '<path d="M2 8h12q5 0 5-3 0-3-3-3"/><path d="M2 13h17q4 0 4 3t-4 3"/><path d="M2 18h9"/>',
+    ]
+    session_metrics = [
+        (t("Kestus"), format_minutes(selected["duration_minutes"]), "blue", session_icons[0]),
+        ("AHI", format_number(selected["calculated_ahi"]), "red", session_icons[1]),
+        (t("Keskmine rõhk"), format_number(selected["avg_pressure"], unit="cmH₂O"), "blue", session_icons[2]),
+        (t("Leke P95"), format_number(selected["leak_p95"], decimals=1, unit="L/min"), "green", session_icons[3]),
+    ]
+    session_cols = st.columns(4, gap="small")
+    for col, (label, value, color, icon) in zip(session_cols, session_metrics):
+        with col:
+            st.markdown(
+                '<div class="apap-kpi">'
+                f'<div class="apap-kpi-label">{escape(str(label))}</div>'
+                f'<div class="apap-kpi-value">{escape(str(value))}</div>'
+                f'<div class="apap-kpi-icon {color}">'
+                '<svg viewBox="0 0 24 24" stroke="currentColor">'
+                f'{icon}</svg></div></div>',
+                unsafe_allow_html=True,
+            )
 
     # -----------------------------------------------------
     # Mõõtmisandmete laadimine
@@ -744,11 +739,13 @@ with tab_session:
             t("5 minutit"): 5,
         }
 
-        selected_period = st.selectbox(
-            t("Kuvatava ajavahemiku pikkus"),
-            options=list(period_options.keys()),
-            key="selected_period",
-        )
+        period_picker_col, _ = st.columns([2, 3])
+        with period_picker_col:
+            selected_period = st.selectbox(
+                t("Kuvatava ajavahemiku pikkus"),
+                options=list(period_options.keys()),
+                key="selected_period",
+            )
 
         period_minutes = period_options[
             selected_period
@@ -1055,10 +1052,16 @@ with tab_session:
             ),
         )
 
-        st.plotly_chart(
-            fig,
-            width="stretch",
+        fig.update_layout(
+            paper_bgcolor="#ffffff",
+            plot_bgcolor="#ffffff",
+            font=dict(color="#465c7b"),
         )
+        with st.container(border=True):
+            st.plotly_chart(
+                fig,
+                width="stretch",
+            )
 
         st.caption(
             f"{t('Valitud ajavahemikus')}: {len(visible_events)} "
