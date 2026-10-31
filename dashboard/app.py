@@ -45,6 +45,46 @@ st.set_page_config(
     layout="wide",
 )
 
+# Presentation-only styling. No therapy calculations or source data are changed.
+st.markdown(
+    """
+    <style>
+    .block-container {padding-top: 1.25rem; padding-bottom: 2rem;}
+    .apap-hero {
+        position: relative; overflow: hidden; isolation: isolate;
+        padding: 1.25rem 1.5rem; border-radius: 14px 14px 0 0;
+        background: linear-gradient(112deg, #ffffff 0%, #f5faff 47%, #d2e8ff 79%, #90c5f9 100%);
+        border: 1px solid #d7e6f5;
+        min-height: 130px;
+    }
+    .apap-hero::before {
+        content: ""; position: absolute; z-index: -1;
+        width: 60%; height: 160px; right: -4%; bottom: -95px;
+        border-radius: 50%; border: 2px solid rgba(255,255,255,.75);
+        box-shadow: 0 -24px 0 8px rgba(255,255,255,.12);
+        transform: rotate(-8deg);
+    }
+    .apap-hero h1 {margin: 0 0 .3rem; font-size: 2rem; line-height: 1.2; color: #0b1e43;}
+    .apap-hero p {margin: 0; color: #536e91;}
+    .apap-hero .apap-moon {position: absolute; right: 5%; top: 12px; font-size: 3rem; opacity: .48;}
+    div[data-testid="stMetric"] {
+        min-width: 0; min-height: 105px; padding: 13px 16px;
+        border: 1px solid #dfe9f4; border-radius: 11px;
+        background: linear-gradient(150deg, #ffffff, #f7fbff);
+    }
+    div[data-testid="stMetricLabel"] {color: #465c7b;}
+    div[data-testid="stMetricValue"] {color: #0b1e43;}
+    div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {color: #1479cf;}
+    @media (max-width: 750px) {
+        .apap-hero {padding: 1rem; min-height: 110px;}
+        .apap-hero h1 {font-size: 1.45rem;}
+        .apap-hero .apap-moon {font-size: 2rem;}
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # =========================================================
 # KASUTAJALIIDESE KEEL / INTERFACE LANGUAGE
 # =========================================================
@@ -199,8 +239,17 @@ with language_col:
         on_change=change_language,
     )
 
-st.title(t("CPAP ravi analüüs"))
-st.caption(t("ResMed AirSense 10 – raviandmete ülevaade"))
+# Escape translated strings before inserting them into the HTML header.
+from html import escape
+
+st.markdown(
+    '<div class="apap-hero">'
+    f'<h1>{escape(t("CPAP ravi analüüs"))}</h1>'
+    f'<p>{escape(t("ResMed AirSense 10 – raviandmete ülevaade"))}</p>'
+    '<span class="apap-moon" aria-hidden="true">☾</span>'
+    '</div>',
+    unsafe_allow_html=True,
+)
 
 if DATA_MODE == "demo":
     if st.session_state.get("ui_language", "et") == "en":
@@ -452,7 +501,7 @@ with tab_overview:
 
             st.subheader(t("Põhinäitajad"))
 
-            c1, c2, c3, c4 = st.columns(4)
+            c1, c2, c3, c4 = st.columns(4, gap="small")
 
             c1.metric(
                 t("Keskmine kasutusaeg"),
@@ -496,7 +545,7 @@ with tab_overview:
                 "therapy_date"
             ].apply(lambda d: d.strftime("%d.%m.%Y"))
 
-            left, right = st.columns(2)
+            left, right = st.columns(2, gap="small")
 
             with left:
                 fig_ahi = px.line(
@@ -515,10 +564,11 @@ with tab_overview:
                     rangemode="tozero"
                 )
 
-                st.plotly_chart(
-                    fig_ahi,
-                    width="stretch",
-                )
+                with st.container(border=True):
+                    st.plotly_chart(
+                        fig_ahi,
+                        width="stretch",
+                    )
 
             with right:
                 fig_pressure = px.line(
@@ -537,10 +587,11 @@ with tab_overview:
                     rangemode="tozero"
                 )
 
-                st.plotly_chart(
-                    fig_pressure,
-                    width="stretch",
-                )
+                with st.container(border=True):
+                    st.plotly_chart(
+                        fig_pressure,
+                        width="stretch",
+                    )
 
             # ---------------------------------------------
             # Algandmete tabel
