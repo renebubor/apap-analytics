@@ -233,17 +233,15 @@ def change_language():
     st.query_params["lang"] = language
 
 
-# Keep the language selector above the header, at the upper left.
-# It remains a native Streamlit widget with the existing language callback.
-language_col, _ = st.columns([1.25, 8])
-with language_col:
-    st.segmented_control(
-        "Language / Keel",
-        options=["ET", "EN"],
-        key="language_picker",
-        label_visibility="collapsed",
-        on_change=change_language,
-    )
+# A full-width widget row avoids narrow-column clipping of the ET/EN switch.
+# Keep the same state key and callback so URL language switching still works.
+st.segmented_control(
+    "Keel / Language",
+    options=["ET", "EN"],
+    key="language_picker",
+    label_visibility="visible",
+    on_change=change_language,
+)
 
 from html import escape
 
