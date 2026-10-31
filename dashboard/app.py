@@ -49,7 +49,7 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    .block-container {padding-top: .55rem; padding-bottom: 2rem;}
+    .block-container {padding-top: 1.35rem; padding-bottom: 2rem;}
     .apap-hero {
         position: relative; isolation: isolate; overflow: hidden;
         min-height: 132px; padding: 20px 22px;
