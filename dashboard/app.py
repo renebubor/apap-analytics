@@ -1383,11 +1383,41 @@ with tab_quality:
         )
         invalid_brp = quality_brp["status"].isna() | quality_brp["status"].ne("ok")
 
-        k1, k2, k3, k4 = st.columns(4)
-        k1.metric(t("Täielikud STR-päevad"), int((~incomplete).sum()))
-        k2.metric(t("Puudulikud STR-päevad"), int(incomplete.sum()))
-        k3.metric(t("PLD mõõtmisteta sessioonid"), int(missing_pld.sum()))
-        k4.metric(t("Vigased BRP-failid"), int(invalid_brp.sum()))
+        # Present existing quality counts with the same cards used in other tabs.
+        quality_icons = [
+            '<path d="M5 12l5 5L20 7"/><circle cx="12" cy="12" r="10"/>',
+            '<path d="M12 3L2 21h20L12 3z"/><path d="M12 9v5m0 3v.1"/>',
+            '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h7"/>',
+            '<path d="M6 2h9l5 5v15H6z"/><path d="M15 2v6h5M13 12v4m0 2v.1"/>',
+        ]
+        quality_metrics = [
+            (t("Täielikud STR-päevad"), int((~incomplete).sum()), "green", quality_icons[0]),
+            (t("Puudulikud STR-päevad"), int(incomplete.sum()), "red", quality_icons[1]),
+            (t("PLD mõõtmisteta sessioonid"), int(missing_pld.sum()), "blue", quality_icons[2]),
+            (t("Vigased BRP-failid"), int(invalid_brp.sum()), "red", quality_icons[3]),
+        ]
+        for col, (label, value, color, icon) in zip(
+            st.columns(4, gap="small"), quality_metrics
+        ):
+            with col:
+                st.markdown(
+                    '<div class="apap-kpi">'
+                    f'<div class="apap-kpi-label">{escape(str(label))}</div>'
+                    f'<div class="apap-kpi-value">{escape(str(value))}</div>'
+                    f'<div class="apap-kpi-icon {color}">'
+                    '<svg viewBox="0 0 24 24" stroke="currentColor">'
+                    f'{icon}</svg></div></div>',
+                    unsafe_allow_html=True,
+                )
+
+        # Colour only status cells, not data. Original text remains searchable.
+        def quality_status_style(value):
+            value = str(value).casefold()
+            if value in {t("Täielik").casefold(), t("Mõõtmised olemas").casefold(), "ok"}:
+                return "background-color: #e8f6ec; color: #146c36"
+            if value in {t("Puudulik").casefold(), t("Mõõtmised puuduvad").casefold()} or value in {"error", "invalid"}:
+                return "background-color: #fdebed; color: #a32032"
+            return ""
 
         st.subheader(t("STR-päevakokkuvõtted"))
         daily_display = quality_daily.rename(columns={
@@ -1398,7 +1428,8 @@ with tab_quality:
             "leak_p95_l_min": t("Leke P95"),
             "status_label": t("Staatus"),
         })
-        st.dataframe(daily_display, width="stretch", hide_index=True)
+        with st.container(border=True):
+            st.dataframe(daily_display.style.map(quality_status_style, subset=[t("Staatus")]), width="stretch", hide_index=True)
 
         st.subheader(t("PLD sessioonide kontroll"))
         pld_display = quality_pld[[
@@ -1411,7 +1442,8 @@ with tab_quality:
             "measurement_count": t("Mõõtmisi"),
             "status_label": t("Staatus"),
         })
-        st.dataframe(pld_display, width="stretch", hide_index=True)
+        with st.container(border=True):
+            st.dataframe(pld_display.style.map(quality_status_style, subset=[t("Staatus")]), width="stretch", hide_index=True)
 
         st.subheader(t("BRP failide kontroll"))
         st.caption(t(
@@ -1431,7 +1463,12 @@ with tab_quality:
             "status": t("Staatus"),
             "error_message": t("Veateade"),
         })
-        st.dataframe(brp_display, width="stretch", hide_index=True)
+        with st.container(border=True):
+            st.dataframe(
+                brp_display.style.map(quality_status_style, subset=[t("Staatus")]),
+                width="stretch", hide_index=True,
+                column_config={t("Veateade"): st.column_config.TextColumn(width="large")},
+            )
 
 
 # =========================================================
