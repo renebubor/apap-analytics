@@ -68,6 +68,7 @@ st.markdown(
         background: linear-gradient(145deg,#fff 0%,#f7faff 100%);
         padding: 15px 15px 10px;
     }
+    .apap-kpi-compact {height: 92px; padding-top: 12px;}
     .apap-kpi-label {color: #4a5c7b; padding-right: 40px; font-size: .92rem; line-height: 1.25;}
     .apap-kpi-value {margin-top: 8px; font-size: 1.6rem; line-height: 1.18; font-weight: 700; color:#101d42; white-space: nowrap;}
     .apap-kpi-icon {position: absolute; right: 12px; top: 11px; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;}
@@ -1104,12 +1105,14 @@ with tab_breathing:
 
     st.subheader(t("Õhuvool hingamissündmuse ajal"))
 
-    brp_session = st.selectbox(
-        t("Vali maskisessioon"),
-        options=session_ids,
-        index=len(session_ids) - 1,
-        key="brp_session",
-    )
+    brp_picker_col, _ = st.columns([2, 3])
+    with brp_picker_col:
+        brp_session = st.selectbox(
+            t("Vali maskisessioon"),
+            options=session_ids,
+            index=len(session_ids) - 1,
+            key="brp_session",
+        )
 
     # Sessiooni ajavahemik võetakse PLD mõõtmistest.
     brp_measurements = load_session_measurements(
@@ -1171,12 +1174,14 @@ with tab_breathing:
                     (event_index, label)
                 )
 
-            selected_event_index = st.selectbox(
-                t("Vali hingamissündmus"),
-                options=range(len(event_options)),
-                format_func=lambda i: event_options[i][1],
-                key="brp_event",
-            )
+            event_picker_col, _ = st.columns([2, 3])
+            with event_picker_col:
+                selected_event_index = st.selectbox(
+                    t("Vali hingamissündmus"),
+                    options=range(len(event_options)),
+                    format_func=lambda i: event_options[i][1],
+                    key="brp_event",
+                )
 
             selected_event = brp_events.loc[
                 event_options[selected_event_index][0]
@@ -1286,30 +1291,46 @@ with tab_breathing:
                     ),
                 )
 
-                st.plotly_chart(
-                    fig_flow,
-                    width="stretch",
-                )
+                with st.container(border=True):
+                    st.plotly_chart(
+                        fig_flow,
+                        width="stretch",
+                    )
 
-                c1, c2, c3 = st.columns(3)
-
-                c1.metric(
-                    t("Sündmuse tüüp"),
-                    event_names.get(
-                        selected_event["event_type"],
-                        selected_event["event_type"],
+                # Reuse compact KPI cards, keeping the underlying values unchanged.
+                breathing_metrics = [
+                    (
+                        t("Sündmuse tüüp"),
+                        event_names.get(selected_event["event_type"], selected_event["event_type"]),
+                        "red",
+                        '<path d="M2 12h5l3-7 4 14 3-7h5"/>',
                     ),
-                )
-
-                c2.metric(
-                    t("Sündmuse kestus"),
-                    f"{selected_event['duration_seconds']:.0f} s",
-                )
-
-                c3.metric(
-                    t("Õhuvoolu mõõtmisi"),
-                    f"{len(flow):,}",
-                )
+                    (
+                        t("Sündmuse kestus"),
+                        f"{selected_event['duration_seconds']:.0f} s",
+                        "blue",
+                        '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 3"/>',
+                    ),
+                    (
+                        t("Õhuvoolu mõõtmisi"),
+                        f"{len(flow):,}",
+                        "green",
+                        '<path d="M2 8h12q5 0 5-3 0-3-3-3"/><path d="M2 13h17q4 0 4 3t-4 3"/><path d="M2 18h9"/>',
+                    ),
+                ]
+                for col, (label, value, color, icon) in zip(
+                    st.columns(3, gap="small"), breathing_metrics
+                ):
+                    with col:
+                        st.markdown(
+                            '<div class="apap-kpi apap-kpi-compact">'
+                            f'<div class="apap-kpi-label">{escape(str(label))}</div>'
+                            f'<div class="apap-kpi-value">{escape(str(value))}</div>'
+                            f'<div class="apap-kpi-icon {color}">'
+                            '<svg viewBox="0 0 24 24" stroke="currentColor">'
+                            f'{icon}</svg></div></div>',
+                            unsafe_allow_html=True,
+                        )
 
                 st.caption(
                     t("Värviline ala tähistab seadme tuvastatud "
